@@ -1,0 +1,513 @@
+---
+title: "LaTeX Table For Model Comparison"
+header-includes:
+   - \usepackage{array}
+   - \usepackage{booktabs}
+   - \usepackage{longtable}
+   - \usepackage{parskip}
+   - \newcommand\p{\vspace{2ex}}
+   - \newcommand\code[1]{\texttt{#1}}
+   - \newcommand\pkg[1]{\textbf{#1}}
+   - \usepackage{rotating}
+   - \usepackage{tabularx}
+   - \usepackage{hyperref}
+   #- \usepackage{titlesec}
+output: 
+  pdf_document:
+    keep_tex: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, include=FALSE}
+library("tidyverse")
+library("purrr")
+library("lazyeval")
+library("readr")
+library("haven")
+library("lubridate")
+library("magrittr")
+library("stringr")
+library("tibble")
+library("zoo")
+library("dygraphs")
+library("plotly")
+library("glmmML")
+library("survival")
+library("forcats")
+library("wesanderson")
+library("leaps")
+library("broom")
+library("modelr")
+
+options(tibble.print_min = 100)
+alcohol1 <- read.table("http://www.ats.ucla.edu/stat/r/examples/alda/data/alcohol1_pp.txt", header=T, sep=",")
+alcohol1 <- tbl_df(alcohol1)
+
+```
+
+
+```{r, include=FALSE}
+
+iglis_mql1  <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 1, nonlinear = c(N = 0 , M = 1)) 
+iglis_mql2  <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 1, nonlinear = c(N = 0 , M = 2)) 
+iglis_pql1  <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 1, nonlinear = c(N = 1 , M = 1)) 
+iglis_pql2  <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 1, nonlinear = c(N = 1 , M = 2)) 
+
+riglis_mql1 <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 0, nonlinear = c(N = 0 , M = 1)) 
+riglis_mql2 <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 0, nonlinear = c(N = 0 , M = 2)) 
+riglis_pql1 <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 0, nonlinear = c(N = 1 , M = 1)) 
+riglis_pql2 <- list(debugmode=F, drop.levels=T, EstM = 0, Meth = 0, nonlinear = c(N = 1 , M = 2))
+
+```
+
+
+
+```{r, include=FALSE}
+
+
+library("R2MLwiN")
+library("doBy")
+options(MLwiN_path = "C:/Program Files (x86)/MLwiN trial/i386/")
+
+
+#a <- alcuse ~ 1 + (1 | id) + (1 | age_14)
+#
+#b <- alcuse ~ 1 + age_14 + (1 + age_14 | id) + (1 | age_14) 
+#
+#c <- alcuse ~ 1 + coa + age_14 + coa:age_14 + (1 + age_14 | id) + (1 | age_14)
+#
+##d <- alcuse ~ 1 + coa + peer + age_14 + coa:age_14 + peer:age_14 + (1 + age_14 | id)
+#d <- alcuse ~ 1 + coa*age_14 + peer*age_14 + (1 + age_14 | id) + (1 | age_14)
+#
+#
+#
+#e <- alcuse ~ 1 + coa + peer + age_14 + peer:age_14 + (1 + age_14 | id) + (1 | age_14)
+#
+#f <- alcuse ~ 1 + coa + cpeer + age_14 +  cpeer:age_14 + (1 + age_14 | id) + (1 | age_14)
+#
+##alcohol1 <- alcohol1 %>% mutate(zent = coa-ccoa)
+#
+#g <- alcuse ~ 1 + ccoa + cpeer + age_14 + cpeer:age_14 + (1 + age_14 | id) + (1 | age_14)
+#
+#
+#
+#a_i <- runMLwiN(a, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#a_r <- runMLwiN(a, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+#
+#b_i <- runMLwiN(b, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#b_r <- runMLwiN(b, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+#
+#c_i <- runMLwiN(c, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#c_r <- runMLwiN(c, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+#
+#
+#d_i <- runMLwiN(d, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#d_r <- runMLwiN(d, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+#
+#
+#e_i <- runMLwiN(e, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#e_r <- runMLwiN(e, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+#
+#
+#f_i <- runMLwiN(f, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#f_r <- runMLwiN(f, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+#
+#
+#g_i <- runMLwiN(g, data = alcohol1, estoptions = list(EstM = 0))             # IGLIS
+#g_r <- runMLwiN(g, data = alcohol1, estoptions = list(EstM = 0, Meth = 0))   # RIGLIS
+
+
+#################################################################################
+
+load("modelle.RData")
+
+```
+
+
+
+
+```{r, include=FALSE}
+###############################################################################
+###############################################################################
+
+extr       <- function(modell, type) {
+  
+  switch(type, 
+         all = unname(coef(modell)), 
+         fp  = unname(`@`(modell, "FP")), 
+         rp  = unname(`@`(modell, "RP"))
+         
+  )
+  
+}
+
+
+extr_names <- function(modell, type) {
+  
+  switch(type, 
+         all = names(coef(modell)), 
+         fp  = names(`@`(modell, "FP")), 
+         rp  = names(`@`(modell, "RP"))
+         
+  )
+  
+}
+
+#################################################################################
+#################################################################################
+
+
+extr_ <- function(x, y) {
+  interp(
+    
+    ~ extr(.x, .y)
+    
+    , .values = list(.x = as_name(x),
+                     .y = y)) %>% 
+    
+    as_call %>% 
+    as.lazy(env=globalenv())
+  
+}
+
+
+extr_names_ <- function(x, y) {
+  interp(
+    
+    ~ extr_names(.x, .y)
+    
+    , .values = list(.x = as_name(x), 
+                     .y = y)) %>% 
+    
+    as_call %>% 
+    as.lazy(env=globalenv())
+  
+}
+
+#################################################################################
+#################################################################################
+
+char_vec <- function(...) {
+  tmp1 <- lazyeval::lazy_dots(...)
+  tmp2 <- map(tmp1, "expr")
+  tmp3 <- map(tmp2, as.character)
+  tmp4 <- as_vector(tmp3) 
+  tmp4
+}
+
+
+
+
+#################################################################################
+#################################################################################
+
+
+koeffi_n <- function(...){
+  
+  tmp1 <- char_vec(...)
+  tmp2 <- purrr::map(tmp1, extr_names_, "all") %>% 
+    lazyeval::as.lazy_dots() %>%  
+    lazyeval::lazy_eval() %>% 
+    purrr::as_vector() %>% 
+    unique()
+  
+  tmp3 <- data_frame(Koeffizient=tmp2) #%>% arrange(Koeffizient)
+  
+  assign("ausgang", tmp3, envir=globalenv())
+  
+}
+
+
+
+#koeffi_n(a_i, b_i, c_i)
+
+#################################################################################
+#################################################################################
+
+
+koeffi <- function(x){
+  
+  tmp1 <- extr_names(x, "all")
+  tmp2 <- extr(x, "all")
+  tmp3 <- list(tmp1, tmp2)  
+  tmp4 <- set_names(tmp3, c("Koeffizient", expr_text(x)))
+  tmp5 <- as_data_frame(tmp4)
+  
+  assign(paste0("tmp_", expr_text(x)), tmp5, envir=globalenv())
+}
+
+
+
+koeffi_ <- function(x) {
+  interp(
+    
+    ~ koeffi(.x)
+    
+    , .values = list(.x = as_name(x))) %>% 
+    
+    as_call %>% 
+    as.lazy(env=globalenv())
+  
+}
+
+
+
+koeffi_vec <- function(...) {
+  tmp1 <- char_vec(...)
+  map(tmp1, koeffi_) %>%  as.lazy_dots() %>% lazy_eval()
+  
+}
+
+#koeffi_vec(a_i, b_i, c_i)
+
+#################################################################################
+#################################################################################
+
+left_join_ <- function(x) {
+  interp(
+    
+    ~ assign("ausgang", left_join(ausgang, .x, by= "Koeffizient"))
+    
+    , .values = list(.x = as_name(x))) %>% 
+    as_call %>% 
+    as.lazy(env=globalenv())
+  
+}
+
+
+
+
+left_join_vec <- function(...) {
+  
+  tmp1 <- char_vec(...)
+  tmp2 <- paste0("tmp_", tmp1)
+  map(tmp2, left_join_ )  %>%  as.lazy_dots() %>% lazy_eval()
+}
+
+
+
+#left_join_vec(hallo, velo)
+
+
+#################################################################################
+#################################################################################
+
+
+super <- function(...) {
+  
+  koeffi_n(...) 
+  
+  koeffi_vec(...)
+  
+  left_join_vec(...)
+  
+}
+
+
+
+super(a_i, b_i, c_i, d_i, e_i, f_i, g_i)
+
+
+
+#################################################################################
+#################################################################################
+
+
+```
+
+
+
+
+
+```{r, include=FALSE}
+
+###############################################################################
+###############################################################################
+
+guetekrit <- function(x){
+  
+  tmp1 <- texreg::extract(x)@gof.names
+  tmp2 <- texreg::extract(x)@gof
+  tmp3 <- list(tmp1, tmp2)  
+  tmp4 <- set_names(tmp3, c("Guetekrit", expr_text(x)))
+  tmp5 <- as_data_frame(tmp4)
+  tmp5
+  
+
+}
+
+
+guetekrit2 <- function(x){
+  tmp2 <- texreg::extract(x)@gof
+  tmp3 <- list(tmp2)  
+  tmp4 <- set_names(tmp3, expr_text(x))
+  tmp5 <- as_data_frame(tmp4)
+  assign(paste0("tmp2_", expr_text(x)), tmp5, envir=globalenv())
+}
+
+
+
+guetekrit2_ <- function(x) {
+  interp(
+    
+    ~ guetekrit2(.x)
+    
+    , .values = list(.x = as_name(x))) %>% 
+    
+    as_call %>% 
+    as.lazy(env=globalenv())
+  
+}
+
+
+paste02 <- function(x) {paste0("tmp2_", x)}
+
+
+guetekrit_vec <- function(...) {
+  tmp1  <- char_vec(...)
+  tmp99 <- list(...)
+  tmp0  <- guetekrit(tmp99[[1]]) 
+  colnames(tmp0) <- c("Guetekrit", tmp1[1])
+  
+  map(tmp1[2:length(tmp1)], guetekrit2_) %>%  as.lazy_dots() %>% lazy_eval()
+  
+  tmp2  <- map(tmp1[2:length(tmp1)], paste02)
+  
+  tmp3  <- call_new("bind_cols", .args =  append(list(tmp0), map(tmp2, as_name))) %>% 
+  as_call() %>% 
+  as.lazy(env=globalenv()) %>% 
+  lazy_eval()
+  tmp3
+
+}
+
+
+
+guet <- guetekrit_vec(a_i, b_i, c_i, d_i, e_i, f_i, g_i)
+
+
+```
+
+
+
+
+
+```{r, include=FALSE}
+library(xtable)
+options(xtable.floating = FALSE)
+options(xtable.timestamp = "")
+options(width = 60)
+
+
+colnames(ausgang)
+
+#colnames(ausgang) <- letters[1:8]
+
+colnames(ausgang) <- c("Koeffizient", "Mod A", "Mod B", "Mod C", "Mod D", "Mod E", "Mod F", "Mod G")
+
+
+ausgang$Koeffizient[4] <- "FP_a:ge_14"
+
+
+
+pattern1  <- "FP_"
+
+string1   <- ausgang$Koeffizient
+
+
+fp <- ausgang %>% filter(stringr::str_detect(string1, pattern1))
+
+rp <- ausgang %>% filter(!stringr::str_detect(string1, pattern1))
+
+
+##############################
+pattern2           <- ":"
+
+string2            <- fp$Koeffizient
+
+fp_initial         <- fp %>% filter(!stringr::str_detect(string2, pattern2))
+
+fp_rate_of_change  <- fp %>% filter(stringr::str_detect(string2, pattern2))
+
+
+
+
+
+#################################################################################
+#################################################################################
+large <- function(x){
+  paste0('{\\Large{\\bfseries ', x, '}}')
+}
+italic <- function(x){
+  paste0('{\\emph{ ', x, '}}')
+}
+bold <- function(x){
+  paste0('{\\bfseries ', x, '}')
+}
+red <- function(x){
+  paste0('{\\color{red} ', x, '}')
+}
+#################################################################################
+#################################################################################
+         
+
+
+
+
+alle <- list(fp=fp_initial, fp2=fp_rate_of_change, rp)
+
+attr(alle, "subheadings") <- c("Fixed Effects: Initial", "Fixed Effects: R. of Change", "Random Effects")
+
+#################################################################################
+#################################################################################
+
+alle2 <- xtableList(alle,
+                 digits=3)
+
+
+#################################################################################
+#################################################################################
+
+```
+
+
+```{r, results="asis", echo=FALSE}
+print.xtableList(alle2, colnames.format = "multiple",
+                 sanitize.rownames.function = italic,
+                 #sanitize.colnames.function = large,
+                 sanitize.subheadings.function = bold,
+                 sanitize.message.function = red,                 
+                 booktabs = TRUE,
+                 include.rownames=TRUE)
+```
+
+
+```{r, results="asis", echo=FALSE}
+
+colnames(guet) <- c("Krit.", "Mod A", "Mod B", "Mod C", "Mod D", "Mod E", "Mod F", "Mod G")
+
+
+guet2 <- xtableList(list(guet))
+
+print.xtableList(guet2,
+                 sanitize.rownames.function = italic,
+                 #sanitize.colnames.function = large,
+                 sanitize.subheadings.function = bold,
+                 sanitize.message.function = red,                 
+                 booktabs = TRUE,
+                 include.rownames=TRUE)
+```
+
+
+
+
+
+
+
+
+
+
